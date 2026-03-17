@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>发现完美字型 - 优质字体收藏库</title>
+    
+    <meta name="description" content="精选全球顶尖设计师的高品质免费商用字体与绝美专题。">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: { sans:['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'] },
+            colors: { 
+              primary: { 
+                50: '#FFF8F0', 100: '#FFEAD6', 200: '#FFCD99', 300: '#FFB05C', 
+                400: '#FF992E', 500: '#FF8C19', 600: '#E67300', 700: '#CC6000'
+              }
+            }
+          }
+        }
+      }
+    </script>
+
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+    <script src="fonts_data.js"></script>
+    <script src="topics_data.js"></script>
+</head>
+<body class="antialiased text-gray-900 dark:text-gray-100 bg-[#fafafa] dark:bg-[#0a0a0a] selection:bg-gray-900 selection:text-white dark:selection:bg-white dark:selection:text-black overflow-x-hidden">
+    
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useMemo, useRef, useEffect } = React;
+        const FONTS_DATA = window.FONTS_DATA || { CATEGORIES:[], ITEMS:[] };
+        const TOPICS_DATA = window.TOPICS_DATA || { CATEGORIES:[], ITEMS:[] };
+
+        // ================= 图标库 =================
+        const Icons = {
+            Type: (p) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" x2="15" y1="20" y2="20"/><line x1="12" x2="12" y1="4" y2="20"/></svg>,
+            Search: (p) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>,
+            Moon: (p) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>,
+            Sun: (p) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>,
+            Layers: (p) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 12 12 17 22 12"/><polyline points="2 17 12 22 22 17"/></svg>,
+            Download: (p) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>,
+            ExternalLink: (p) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>,
+            Copy: (p) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>,
+            Check: (p) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><polyline points="20 6 9 17 4 12"/></svg>,
+            X: (p) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+            Bell: (p) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>,
+            ChevronDown: (p) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="m6 9 6 6 6-6"/></svg>,
+            Rocket: (p) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>,
+            Image: (p) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>,
+            MailPlus: (p) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M22 13V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v12c0 1.1.9 2 2 2h8"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/><path d="M19 16v6"/><path d="M16 19h6"/></svg>,
+            ArrowRight: (p) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        };
+
+        const TopBar = ({ isDark, toggleTheme }) => {
+            return (
+                <header className="fixed top-0 left-0 right-0 h-14 flex items-center justify-between px-6 md:px-8 z-50 border-b border-gray-200/50 dark:border-white/10 bg-[#fafafa] dark:bg-[#0a0a0a] transition-colors">
+                    <div className="flex items-center gap-6">
+                        <a href="https://github.com" target="_blank" rel="noreferrer" className="text-sm font-normal text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors">开源项目</a>
+                        <a href="#" target="_blank" rel="noreferrer" className="text-sm font-normal text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors">提交字型</a>
+                        <a href="#" target="_blank" rel="noreferrer" className="text-sm font-normal text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors">关于我们</a>
+                    </div>
+                    
+                    <div className="flex items-center gap-3">
+                        <div className="relative group">
+                            <button className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 text-[13px] font-bold transition-all active:scale-95 shadow-sm cursor-pointer">
+                                <Icons.Bell size={14} strokeWidth={2.5} className="mr-0.5" />
+                                通知公告
+                                <Icons.ChevronDown size={14} strokeWidth={2.5} className="transform transition-transform duration-300 group-hover:rotate-180" />
+                            </button>
+                            
+                            <div className="absolute top-full right-0 mt-3 w-[340px] bg-white dark:bg-[#1a1a1a] rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] dark:shadow-black border border-gray-100 dark:border-white/10 opacity-0 invisible translate-y-2 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-300 z-50 overflow-hidden">
+                                <div className="flex flex-col py-2">
+                                    <a href="#" target="_blank" rel="noreferrer" className="flex items-center gap-4 px-5 py-4 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group/item">
+                                        <div className="w-11 h-11 rounded-full bg-blue-50 dark:bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0">
+                                            <Icons.Rocket size={20} strokeWidth={2} />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <h4 className="text-sm font-bold text-gray-900 dark:text-white line-clamp-1 group-hover/item:text-blue-500 transition-colors">自在导航 V2.0 焕新上线!</h4>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-1">全新的视觉体验，更丰富的实用工具</p>
+                                        </div>
+                                        <div className="text-[11px] text-gray-400 shrink-0 font-medium">03-16</div>
+                                    </a>
+
+                                    <div className="h-px bg-gray-50 dark:bg-white/5 mx-5"></div>
+
+                                    <a href="#" target="_blank" rel="noreferrer" className="flex items-center gap-4 px-5 py-4 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group/item">
+                                        <div className="w-11 h-11 rounded-full bg-orange-50 dark:bg-orange-500/10 text-orange-500 flex items-center justify-center shrink-0">
+                                            <Icons.Image size={20} strokeWidth={2} />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <h4 className="text-sm font-bold text-gray-900 dark:text-white line-clamp-1 group-hover/item:text-orange-500 transition-colors">新增免版权图片与音视频专区</h4>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-1">收录百余个高质量免费素材站点</p>
+                                        </div>
+                                        <div className="text-[11px] text-gray-400 shrink-0 font-medium">03-15</div>
+                                    </a>
+
+                                    <div className="h-px bg-gray-50 dark:bg-white/5 mx-5"></div>
+
+                                    <a href="#" target="_blank" rel="noreferrer" className="flex items-center gap-4 px-5 py-4 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group/item">
+                                        <div className="w-11 h-11 rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
+                                            <Icons.MailPlus size={20} strokeWidth={2} />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <h4 className="text-sm font-bold text-gray-900 dark:text-white line-clamp-1 group-hover/item:text-emerald-500 transition-colors">提交收录申请或建议</h4>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-1">发现好的网站？快来提交给我们吧</p>
+                                        </div>
+                                        <div className="text-[11px] text-gray-400 shrink-0 font-medium">03-10</div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button onClick={toggleTheme} className="w-8 h-8 flex items-center justify-center rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10 transition-all active:scale-90 shrink-0">
+                            {isDark ? <Icons.Moon size={16} strokeWidth={2.5} /> : <Icons.Sun size={16} strokeWidth={2.5} />}
+                        </button>
+                    </div>
+                </header>
+            );
+        };
+
+        const SideBar = ({ activeMode, setActiveMode, searchQuery, onSearch }) => {
+            const [localSearch, setLocalSearch] = useState(searchQuery);
+
+            useEffect(() => {
+                setLocalSearch(searchQuery);
+            }, [searchQuery]);
+
+            const triggerSearch = () => {
+                onSearch(localSearch);
+            };
+
+            const handleKeyDown = (e) => {
+                if (e.key === 'Enter') {
+                    triggerSearch();
+                }
+            };
+
+            return (
+                <aside className="md:fixed md:top-14 md:bottom-0 md:left-0 w-full md:w-60 lg:w-64 bg-[#fafafa] dark:bg-[#0a0a0a] border-b md:border-b-0 md:border-r border-gray-200/80 dark:border-white/10 p-6 flex flex-col gap-6 z-40 overflow-y-auto no-scrollbar shrink-0">
+                    <div className="cursor-pointer select-none mt-2">
+                        <img 
+                            src="https://pic3.fukit.cn/autoupload/NWINCyTOTWqNUcPQazQq69iO_OyvX7mIgxFBfDMDErs/20251218/mAPB/logo.svg" 
+                            alt="Logo" 
+                            className="h-8 md:h-9 w-auto"
+                        />
+                    </div>
+
+                    <div className="relative flex items-center w-full">
+                        <input 
+                            type="text" 
+                            value={localSearch} 
+                            onChange={(e) => setLocalSearch(e.target.value)} 
+                            onKeyDown={handleKeyDown}
+                            placeholder={activeMode === 'topics' ? "搜索专题..." : "搜索字型..."} 
+                            className="peer w-full pl-10 pr-4 py-2.5 rounded-full bg-transparent border border-gray-300 dark:border-white/20 focus:border-gray-400 dark:focus:border-white/40 focus:ring-2 focus:ring-gray-100 dark:focus:ring-white/5 outline-none text-sm font-medium text-gray-800 dark:text-gray-100 placeholder-gray-400 transition-all duration-300 focus:pl-5 focus:pr-10" 
+                        />
+                        <div className="absolute left-3.5 flex items-center justify-center text-gray-400 pointer-events-none transition-all duration-300 peer-focus:opacity-0 peer-focus:-translate-x-2 peer-focus:scale-75">
+                            <Icons.Search size={15} />
+                        </div>
+                        <button 
+                            onClick={triggerSearch} 
+                            onMouseDown={(e) => e.preventDefault()}
+                            className="absolute right-3.5 flex items-center justify-center text-gray-400 hover:text-gray-900 dark:hover:text-white opacity-0 translate-x-2 scale-75 pointer-events-none peer-focus:opacity-100 peer-focus:translate-x-0 peer-focus:scale-100 peer-focus:pointer-events-auto transition-all duration-300 active:scale-90"
+                        >
+                            <Icons.ArrowRight size={16} strokeWidth={2.5} />
+                        </button>
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                        <div className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2 pl-2">资源库分类</div>
+                        
+                        <button 
+                            onClick={() => setActiveMode('fonts')} 
+                            className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 active:scale-[0.98] ${
+                                activeMode === 'fonts' 
+                                ? 'bg-gray-200 dark:bg-white/15 text-gray-900 dark:text-white shadow-sm font-bold' 
+                                : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100/80 dark:hover:bg-white/5 font-medium'
+                            }`}
+                        >
+                            <Icons.Type size={18} /> 全部字体
+                        </button>
+                        <button 
+                            onClick={() => setActiveMode('topics')} 
+                            className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 active:scale-[0.98] ${
+                                activeMode === 'topics' 
+                                ? 'bg-gray-200 dark:bg-white/15 text-gray-900 dark:text-white shadow-sm font-bold' 
+                                : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100/80 dark:hover:bg-white/5 font-medium'
+                            }`}
+                        >
+                            <Icons.Layers size={18} /> 专辑精选
+                        </button>
+                    </div>
+
+                    <div className="mt-auto pt-8 text-xs font-medium text-gray-400 dark:text-gray-600 leading-relaxed pl-2">
+                        &copy; 2026 FontVault.<br/>
+                        保留所有权利。
+                    </div>
+                </aside>
+            );
+        };
+
+        const HeroSection = ({ activeMode, totalCount }) => {
+            const displayTitle = activeMode === 'fonts' ? '发现完美字型' : '高品质设计专辑';
+            return (
+                <section className="pt-8 pb-4 animate-in fade-in slide-in-from-top-4 duration-700 flex items-center flex-wrap gap-3 md:gap-4">
+                    <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tight transition-colors">
+                        {displayTitle}
+                    </h1>
+                    {/* 只在全部字体模式下显示总数标签 */}
+                    {activeMode === 'fonts' && totalCount !== undefined && (
+                        <div className="px-3.5 py-1.5 rounded-full bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 text-xs font-bold border border-gray-200 dark:border-white/5 shadow-sm flex items-center">
+                            共 {totalCount} 款字体
+                        </div>
+                    )}
+                </section>
+            );
+        };
+
+        const CategoryBar = ({ categories, activeCategory, onSelect }) => {
+            const tabsRef = useRef([]);
+            const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 });
+            
+            useEffect(() => {
+                const calculate = () => {
+                    const idx = categories.findIndex(c => c.id === activeCategory);
+                    const tab = tabsRef.current[idx];
+                    if (tab) {
+                        setIndicatorStyle({ left: tab.offsetLeft, width: tab.offsetWidth, opacity: 1 });
+                    }
+                };
+                
+                // 初次计算
+                calculate();
+                
+                // 当页面中所有的字体（包括自定义字体）完全加载后，再次精确计算宽度
+                if (document.fonts && document.fonts.ready) {
+                    document.fonts.ready.then(calculate);
+                }
+                
+                // 监听窗口尺寸变化
+                window.addEventListener('resize', calculate);
+                
+                // 保底机制：针对可能存在的轻微渲染延迟
+                const timer1 = setTimeout(calculate, 150);
+                const timer2 = setTimeout(calculate, 400);
+
+                return () => {
+                    window.removeEventListener('resize', calculate);
+                    clearTimeout(timer1);
+                    clearTimeout(timer2);
+                };
+            }, [activeCategory, categories]);
+
+            return (
+                <div className="sticky top-14 z-30 mb-6 pt-2 pb-2 -mx-4 md:mx-0 px-4 md:px-0 animate-in fade-in duration-700 bg-[#fafafa] dark:bg-[#0a0a0a] transition-colors">
+                    <div className="flex justify-start items-center overflow-x-auto no-scrollbar py-2">
+                        <div className="relative p-1.5 rounded-full bg-white dark:bg-[#111] border border-gray-200/80 dark:border-white/5 flex items-center shadow-sm w-max">
+                           <div className="absolute h-[calc(100%-0.75rem)] top-1.5 bg-gray-900 dark:bg-white rounded-full transition-all duration-300 ease-[cubic-bezier(0.25,0.8,0.25,1)] shadow-md" style={{ left: indicatorStyle.left, width: indicatorStyle.width, opacity: indicatorStyle.opacity }} />
+                           {categories.map((cat, index) => (
+                                <button 
+                                    key={cat.id} 
+                                    ref={el => tabsRef.current[index] = el} 
+                                    onClick={() => onSelect(cat.id)} 
+                                    className={`relative px-5 md:px-6 py-1.5 rounded-full text-xs md:text-sm font-bold transition-all duration-300 active:scale-95 whitespace-nowrap z-10 ${activeCategory === cat.id ? 'text-white dark:text-black' : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'}`}
+                                >
+                                    {cat.label}
+                                </button>
+                            ))} 
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const TopicCard = ({ item, onOpenModal }) => {
+            return (
+                <div className="group relative bg-white dark:bg-[#111] border border-gray-100 dark:border-white/5 rounded-3xl overflow-hidden transition-all duration-500 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] dark:hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)] hover:-translate-y-1 flex flex-col [mask-image:-webkit-radial-gradient(white,black)] transform-gpu">
+                    <div className="relative aspect-[16/10] bg-gray-100 dark:bg-[#1a1a1a] overflow-hidden block shrink-0">
+                        <img 
+                            src={item.imageUrl} 
+                            alt={item.title} 
+                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                            loading="lazy" 
+                        />
+                        <div className="absolute top-4 left-4 px-3 py-1.5 rounded-full text-[11px] font-bold bg-white/90 dark:bg-black/70 backdrop-blur-md text-gray-900 dark:text-white shadow-sm flex items-center gap-1.5 z-10">
+                            <Icons.Layers size={14} className="text-gray-900 dark:text-white"/> 专辑
+                        </div>
+                    </div>
+
+                    <div className="p-4 sm:p-5 flex flex-col flex-1 justify-between">
+                        <h3 className="text-base sm:text-lg font-black text-gray-900 dark:text-white line-clamp-2 leading-snug mb-4">
+                            {item.title}
+                        </h3>
+                        
+                        <div className="flex items-center gap-2 sm:gap-3 mt-auto">
+                            <a 
+                                href={item.url} 
+                                target="_blank" 
+                                rel="noreferrer" 
+                                className="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10 transition-all duration-300 active:scale-95 font-semibold text-[11px]"
+                                title="查看详情"
+                            >
+                                <Icons.ExternalLink size={11} strokeWidth={2} />
+                                <span>详情</span>
+                            </a>
+                            
+                            <button 
+                                onClick={() => onOpenModal(item)} 
+                                className="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg bg-gray-900 text-white dark:bg-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200 transition-all duration-300 active:scale-95 font-semibold text-[11px] shadow-sm"
+                                title="下载合集"
+                            >
+                                <Icons.Download size={11} strokeWidth={2} />
+                                <span>下载</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const FontCard = ({ item, onOpenModal }) => {
+            return (
+                <div className="group relative bg-white dark:bg-[#111] border border-gray-100 dark:border-white/5 rounded-3xl overflow-hidden transition-all duration-500 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] dark:hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)] hover:-translate-y-1 [mask-image:-webkit-radial-gradient(white,black)] transform-gpu">
+                    <div className="relative aspect-[4/3] bg-gray-100 dark:bg-[#1a1a1a] overflow-hidden">
+                        <img 
+                            src={item.imageUrl} 
+                            alt={item.name} 
+                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                            loading="lazy" 
+                        />
+                        <div className="absolute top-4 left-4 px-3 py-1.5 rounded-full text-[11px] font-bold bg-white/90 dark:bg-black/70 backdrop-blur-md text-gray-900 dark:text-white shadow-sm flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.6)]"></span>免费商用
+                        </div>
+                    </div>
+
+                    <div className="p-4 sm:p-5 flex items-center justify-between gap-4">
+                        <h3 className="text-base sm:text-lg font-black text-gray-900 dark:text-white truncate flex-1">
+                            {item.name}
+                        </h3>
+                        
+                        <button 
+                            onClick={() => onOpenModal(item)} 
+                            className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-50 dark:bg-white/5 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/10 transition-all duration-300 active:scale-95 font-semibold text-[11px]"
+                            title="下载字型"
+                        >
+                            <Icons.Download size={11} strokeWidth={2} />
+                            <span>下载</span>
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        const CopyButton = ({ text }) => {
+            const[copied, setCopied] = useState(false);
+            const handleCopy = async () => {
+                if (!text) return;
+                try {
+                    await navigator.clipboard.writeText(text);
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                } catch (err) { console.error('Copy failed:', err); }
+            };
+            return (
+                <button onClick={handleCopy} title="复制下载链接" className="p-2.5 text-gray-400 hover:text-gray-900 hover:bg-gray-100 dark:hover:text-white dark:hover:bg-white/10 rounded-xl transition-all active:scale-90">
+                    {copied ? <Icons.Check size={18} className="text-green-500" /> : <Icons.Copy size={18} />}
+                </button>
+            );
+        };
+
+        const DownloadModal = ({ isOpen, onClose, data }) => {
+            if (!isOpen || !data) return null;
+            
+            const links = Array.isArray(data.downloads) ? data.downloads.filter(l => l.url) :[];
+
+            return (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300">
+                    <div className="absolute inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-md" onClick={onClose}></div>
+                    <div className="relative w-full max-w-md bg-white dark:bg-gray-900 rounded-3xl shadow-2xl border border-gray-200 dark:border-white/10 overflow-hidden flex flex-col animate-in zoom-in-95 duration-300">
+                        <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5">
+                            <div>
+                                <h3 className="text-lg font-black text-gray-900 dark:text-white">下载字体</h3>
+                                <p className="text-sm text-gray-500 mt-1 line-clamp-1">{data.title || data.name}</p>
+                            </div>
+                            <button onClick={onClose} className="p-2 -mr-2 text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors active:scale-90">
+                                <Icons.X size={20} />
+                            </button>
+                        </div>
+                        <div className="p-6 flex flex-col gap-4 max-h-[60vh] overflow-y-auto no-scrollbar">
+                            {links.map((link, idx) => (
+                                <div key={idx} className="group flex items-center justify-between p-4 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-white/10 hover:border-gray-400 dark:hover:border-gray-50 transition-colors shadow-sm shrink-0">
+                                    <span className="font-bold text-gray-800 dark:text-gray-200 text-sm truncate pr-2">{link.name}</span>
+                                    <div className="flex items-center gap-2 shrink-0">
+                                        <CopyButton text={link.url} />
+                                        <a href={link.url} target="_blank" rel="noreferrer" className="px-5 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold text-sm rounded-xl hover:opacity-85 transition-opacity active:scale-95 shadow-sm">
+                                            下载
+                                        </a>
+                                    </div>
+                                </div>
+                            ))}
+                            {links.length === 0 && (
+                                <div className="text-center py-10 text-gray-400"><Icons.Type size={48} className="mx-auto mb-4 opacity-20" /><p>暂无可用下载链接</p></div>
+                            )}
+
+                            <p className="text-xs text-gray-400 dark:text-gray-500 text-center mt-3 mb-1">
+                                字体版权归属厂商，本站仅供下载学习交流，不承担任何使用后果。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [activeMode, setActiveMode] = useState(() => {
+                const params = new URLSearchParams(window.location.search);
+                return params.get('mode') === 'topics' ? 'topics' : 'fonts'; 
+            }); 
+            
+            const [activeFontCategory, setActiveFontCategory] = useState(() => {
+                const params = new URLSearchParams(window.location.search);
+                if (params.get('q')) return 'all';
+                return (params.get('mode') !== 'topics' && params.get('cat')) ? params.get('cat') : 'all';
+            });
+
+            const [activeTopicCategory, setActiveTopicCategory] = useState(() => {
+                const params = new URLSearchParams(window.location.search);
+                if (params.get('q')) return 'all';
+                return (params.get('mode') === 'topics' && params.get('cat')) ? params.get('cat') : 'all';
+            });
+
+            const [searchQuery, setSearchQuery] = useState(() => {
+                const params = new URLSearchParams(window.location.search);
+                return params.get('q') || '';
+            });
+
+            const [isDark, setIsDark] = useState(false); 
+            const [modalData, setModalData] = useState(null);
+            
+            // ================= 分页加载状态 =================
+            const [visibleCount, setVisibleCount] = useState(42); 
+            const ITEMS_PER_PAGE = 42; // 一次加载 42 个（能被 2,3,6,7 整除，非常适合响应式网格）
+
+            const isInitialMount = useRef(true);
+
+            const handleSearch = (query) => {
+                setSearchQuery(query);
+                if (query.trim() !== '') {
+                    if (activeMode === 'topics') {
+                        setActiveTopicCategory('all');
+                    } else {
+                        setActiveFontCategory('all');
+                    }
+                }
+            };
+
+            const handleFontCategoryChange = (cat) => {
+                setActiveFontCategory(cat);
+                setSearchQuery('');
+            };
+
+            const handleTopicCategoryChange = (cat) => {
+                setActiveTopicCategory(cat);
+                setSearchQuery('');
+            };
+
+            // URL 同步
+            useEffect(() => {
+                const url = new URL(window.location);
+                url.searchParams.set('mode', activeMode);
+
+                const currentCat = activeMode === 'topics' ? activeTopicCategory : activeFontCategory;
+                if (currentCat !== 'all') {
+                    url.searchParams.set('cat', currentCat);
+                } else {
+                    url.searchParams.delete('cat'); 
+                }
+
+                if (searchQuery.trim()) {
+                    url.searchParams.set('q', searchQuery.trim());
+                } else {
+                    url.searchParams.delete('q');
+                }
+
+                window.history.replaceState({}, '', url);
+            }, [activeMode, activeTopicCategory, activeFontCategory, searchQuery]);
+
+            // 切换任何过滤条件时，重置分页到第一页（清空搜索逻辑保持）
+            useEffect(() => {
+                if (isInitialMount.current) {
+                    isInitialMount.current = false;
+                } else {
+                    // 仅当 activeMode 改变时清空搜索
+                    // 此处通过依赖项设计，我们在 handle 里面处理了搜索清空，这里不再冗余处理 setSearchQuery('')
+                }
+                // 重置可见数量
+                setVisibleCount(ITEMS_PER_PAGE);
+            }, [activeMode, activeTopicCategory, activeFontCategory, searchQuery]);
+
+            const toggleTheme = () => {
+                setIsDark(!isDark);
+                document.documentElement.classList.toggle('dark');
+            };
+            
+            // 筛选出符合条件的所有数据
+            const displayData = useMemo(() => {
+                if (activeMode === 'topics') {
+                    let data = TOPICS_DATA.ITEMS ||[];
+                    if (searchQuery.trim()) data = data.filter(i => i.title.toLowerCase().includes(searchQuery.toLowerCase()));
+                    if (activeTopicCategory !== 'all') data = data.filter(i => i.category === activeTopicCategory);
+                    return data;
+                } else {
+                    let data = FONTS_DATA.ITEMS ||[];
+                    if (searchQuery.trim()) data = data.filter(i => i.name.toLowerCase().includes(searchQuery.toLowerCase()));
+                    if (activeFontCategory !== 'all') data = data.filter(i => i.category === activeFontCategory);
+                    return data;
+                }
+            },[activeMode, activeTopicCategory, activeFontCategory, searchQuery]);
+
+            // 截取当前需要渲染的数据
+            const paginatedData = displayData.slice(0, visibleCount);
+
+            const handleLoadMore = () => {
+                setVisibleCount(prev => prev + ITEMS_PER_PAGE);
+            };
+
+            return (
+                <div className="min-h-screen font-sans flex flex-col relative">
+                    
+                    <TopBar isDark={isDark} toggleTheme={toggleTheme} />
+                    
+                    <div className="flex flex-col md:flex-row pt-14 flex-1">
+                        
+                        <SideBar 
+                            activeMode={activeMode} 
+                            setActiveMode={setActiveMode} 
+                            searchQuery={searchQuery}
+                            onSearch={handleSearch}
+                        />
+                        
+                        <main className="flex-1 w-full min-w-0 md:ml-60 lg:ml-64">
+                            <div className="px-6 md:px-8 lg:px-10 pb-24 flex flex-col w-full">
+                                
+                                <HeroSection activeMode={activeMode} totalCount={displayData.length} />
+
+                                <CategoryBar 
+                                    categories={activeMode === 'topics' ? TOPICS_DATA.CATEGORIES : FONTS_DATA.CATEGORIES} 
+                                    activeCategory={activeMode === 'topics' ? activeTopicCategory : activeFontCategory} 
+                                    onSelect={activeMode === 'topics' ? handleTopicCategoryChange : handleFontCategoryChange} 
+                                />
+
+                                <div className="flex-1 w-full mt-2">
+                                    {displayData.length === 0 ? (
+                                        <div className="text-left py-24 text-gray-400 dark:text-gray-500 flex flex-col items-start gap-4 animate-in fade-in duration-500">
+                                            {activeMode === 'topics' 
+                                                ? <Icons.Layers size={48} className="opacity-20 animate-pulse" /> 
+                                                : <Icons.Type size={48} className="opacity-20 animate-pulse" />
+                                            }
+                                            <p className="font-semibold tracking-wide text-base">未找到匹配的结果，请尝试其他关键词。</p>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <div className={`grid gap-5 md:gap-6 animate-in fade-in slide-in-from-bottom-6 duration-700 fill-mode-both w-full
+                                                ${activeMode === 'topics' 
+                                                    ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' 
+                                                    : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 3xl:grid-cols-7'
+                                                }`}>
+                                                {paginatedData.map(item => (
+                                                    activeMode === 'topics' 
+                                                        ? <TopicCard key={item.id} item={item} onOpenModal={setModalData} />
+                                                        : <FontCard key={item.id} item={item} onOpenModal={setModalData} />
+                                                ))}
+                                            </div>
+
+                                            {/* 加载更多按钮 */}
+                                            {visibleCount < displayData.length && (
+                                                <div className="flex justify-center mt-12 pb-8 animate-in fade-in duration-500">
+                                                    <button 
+                                                        onClick={handleLoadMore} 
+                                                        className="px-6 py-3 rounded-full bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 font-bold text-sm shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-300 flex items-center gap-2"
+                                                    >
+                                                        加载更多
+                                                        <Icons.ChevronDown size={16} strokeWidth={2.5} />
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                        </main>
+                    </div>
+
+                    <DownloadModal isOpen={!!modalData} onClose={() => setModalData(null)} data={modalData} />
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
