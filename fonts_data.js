@@ -11,16 +11,16 @@ window.FONTS_DATA = {
     ITEMS:[
         {
             id: 'f1', category: 'sans',
-            name: 'Inter Display', author: 'Rasmus Andersson',
+            name: 'Inter Display',
+            author: 'Rasmus Andersson',
             description: '专为电脑屏幕和现代 UI 精心设计制作的可变无衬线字体系列，极具辨识度与极简美学。',
             imageUrl: '1.png',
-            url: 'https://rsms.me/inter/',
+            url: 'https://hao.zizao.top',
             license: 'OFL (免费开源商用)',
             version: 'v4.0',
             stylesCount: 18,
             tags:['无衬线', '现代UI', '可变字体'],
             languages:['拉丁语', '西里尔文', '希腊文'],
-            previewText: 'Design is not just what it looks like and feels like. Design is how it works.',
             downloads:[
                 { name: '官方渠道下载', url: 'https://rsms.me/inter/' },
                 { name: '夸克网盘下载', url: 'https://pan.quark.cn/s/inter123' },
@@ -38,7 +38,6 @@ window.FONTS_DATA = {
             stylesCount: 28,
             tags:['衬线体', '排版', '长篇阅读', '复古'],
             languages:['拉丁语', '西里尔文'],
-            previewText: 'El veloz murciélago hindú comía feliz cardillo y kiwi. La cigüeña tocaba el saxofón detrás del palenque de paja.',
             downloads:[
                 { name: 'Github 发布页', url: 'https://fontsource.org/fonts/piazzolla' },
                 { name: '百度网盘下载', url: 'https://pan.baidu.com/s/piazz123' }
@@ -55,7 +54,6 @@ window.FONTS_DATA = {
             stylesCount: 1,
             tags:['标题', '窄体', '海报', '大写字母'],
             languages: ['拉丁语', '西里尔文'],
-            previewText: 'THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG.',
             downloads:[
                 { name: '官方网站提取', url: 'https://bebasneue.com' },
                 { name: '夸克网盘下载', url: 'https://pan.quark.cn/s/bebas123' },
@@ -73,7 +71,6 @@ window.FONTS_DATA = {
             stylesCount: 4,
             tags:['手写', '签名', '连字', '自然笔触'],
             languages:['拉丁语', '西里尔文'],
-            previewText: 'Everything you can imagine is real.',
             downloads:[
                 { name: 'Google Fonts', url: 'https://fonts.google.com/specimen/Caveat' },
                 { name: '阿里云盘下载', url: 'https://www.aliyundrive.com/s/caveat123' }
@@ -88,9 +85,8 @@ window.FONTS_DATA = {
             license: '免费个人及商用',
             version: '1.0',
             stylesCount: 6,
-            tags: ['潮流', '高对比', '怪诞', '标题'],
+            tags:['潮流', '高对比', '怪诞', '标题'],
             languages: ['拉丁语'],
-            previewText: 'GOOD DESIGN IS INNOVATIVE.',
             downloads:[
                 { name: 'Fontshare 官方', url: 'https://fontshare.com/fonts/clash-display' },
                 { name: '夸克网盘下载', url: 'https://pan.quark.cn/s/clash123' }
@@ -107,7 +103,6 @@ window.FONTS_DATA = {
             stylesCount: 12,
             tags:['优雅', '奢华', '高对比', '过渡期衬线'],
             languages:['拉丁语', '西里尔文', '越南语'],
-            previewText: 'To be, or not to be, that is the question.',
             downloads:[
                 { name: '官方渠道下载', url: 'https://fonts.google.com/specimen/Playfair+Display' },
                 { name: '夸克网盘下载', url: 'https://pan.quark.cn/s/playfair123' },
@@ -125,7 +120,6 @@ window.FONTS_DATA = {
             stylesCount: 1,
             tags:['像素', '复古游戏', '16-bit', '哥特式'],
             languages:['拉丁语', '日文'],
-            previewText: 'The quick brown fox jumps over the lazy dog. 快速的棕色狐狸跳过懒狗。',
             downloads:[
                 { name: '官方渠道下载', url: 'https://fonts.google.com/specimen/DotGothic16' },
                 { name: '蓝奏云盘下载', url: 'https://pan.lanzou.com/s/dotg123' }
@@ -142,7 +136,6 @@ window.FONTS_DATA = {
             stylesCount: 5,
             tags:['古怪细节', '技术感', '几何风格'],
             languages:['拉丁语', '越南语'],
-            previewText: 'Space Grotesk retains the idiosyncratic details of a monospace typeface.',
             downloads:[
                 { name: '官方渠道下载', url: 'https://fonts.google.com/specimen/Space+Grotesk' },
                 { name: '夸克网盘下载', url: 'https://pan.quark.cn/s/spaceg123' },

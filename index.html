@@ -25,11 +25,24 @@
       }
     </script>
 
+    <style>
+        body {
+            transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-x: hidden;
+            overflow-y: overlay;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Scrollbar tweaks */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-    <link rel="stylesheet" href="style.css">
     <script src="fonts_data.js"></script>
     <script src="topics_data.js"></script>
 </head>
@@ -153,7 +166,7 @@
 
             useEffect(() => {
                 setLocalSearch(searchQuery);
-            }, [searchQuery]);
+            },[searchQuery]);
 
             const triggerSearch = () => {
                 onSearch(localSearch);
@@ -329,7 +342,7 @@
 
         const TopicCard = ({ item, onOpenDownload }) => {
             return (
-                <div className="group relative bg-white dark:bg-[#111] border border-gray-100 dark:border-white/5 rounded-2xl sm:rounded-3xl overflow-hidden transition-all duration-500 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] dark:hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)] hover:-translate-y-1 flex flex-col [mask-image:-webkit-radial-gradient(white,black)] transform-gpu">
+                <div className="group relative bg-white dark:bg-[#111] border border-gray-100 dark:border-white/5 rounded-2xl sm:rounded-3xl overflow-hidden transition-all duration-500 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] dark:hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)] hover:-translate-y-1 flex flex-col[mask-image:-webkit-radial-gradient(white,black)] transform-gpu">
                     <div className="relative w-full aspect-[16/10] bg-gray-100 dark:bg-[#1a1a1a] overflow-hidden shrink-0">
                         <img 
                             src={item.imageUrl} 
@@ -485,7 +498,7 @@
             return (
                 <div className="fixed inset-0 z-[60] bg-[#fafafa] dark:bg-[#0a0a0a] animate-in fade-in zoom-in-95 duration-300 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden">
                     
-                    {/* 全局悬浮返回按钮（无论桌面还是手机都能固定在右上角） */}
+                    {/* 全局悬浮返回按钮 */}
                     <div className="fixed top-4 right-4 md:top-6 md:right-8 z-[70]">
                         <button 
                             onClick={onClose} 
@@ -496,13 +509,12 @@
                         </button>
                     </div>
 
-                    {/* 左侧：配图画廊区域（点击返回），使用 flex 垂直水平居中，并保持固定 4:3 比例 */}
+                    {/* 左侧：配图画廊区域 */}
                     <div 
                         className="relative w-full lg:w-[45%] xl:w-[50%] lg:h-full shrink-0 flex items-center justify-center p-5 pt-16 lg:p-12 xl:p-16 bg-gray-100/60 dark:bg-[#0f0f0f] cursor-pointer"
                         onClick={onClose}
                         title="点击返回"
                     >
-                        {/* 限定宽度且保持 4:3 比例的图片容器 */}
                         <div className="relative w-full max-w-xl xl:max-w-2xl aspect-[4/3] rounded-3xl md:rounded-[2rem] overflow-hidden shadow-2xl hover:shadow-[0_20px_50px_-15px_rgba(0,0,0,0.3)] transition-shadow duration-500 group">
                             <img 
                                 src={font.imageUrl} 
@@ -515,17 +527,15 @@
                         </div>
                     </div>
                     
-                    {/* 右侧：全屏背景滚动详情区（点击空白区域返回） */}
+                    {/* 右侧：全屏背景滚动详情区 */}
                     <div 
                         className="relative flex-1 flex flex-col lg:h-full lg:overflow-y-auto no-scrollbar bg-[#fafafa] dark:bg-[#0a0a0a] cursor-pointer"
                         onClick={onClose}
                     >
-                        {/* 内容核心区域 (阻止冒泡，点击不关闭) */}
                         <div 
                             className="p-6 sm:p-10 lg:p-14 xl:p-20 pb-20 flex flex-col gap-6 sm:gap-8 w-full max-w-3xl mx-auto min-h-full cursor-default"
                             onClick={(e) => e.stopPropagation()}
                         >
-                            {/* 桌面端额外顶部留白，避免内容显得过于靠上 */}
                             <div className="hidden lg:block h-4"></div>
 
                             {/* 头部标题 */}
@@ -606,7 +616,7 @@
                 return (params.get('mode') === 'topics' && params.get('cat')) ? params.get('cat') : 'all';
             });
 
-            const [searchQuery, setSearchQuery] = useState(() => {
+            const[searchQuery, setSearchQuery] = useState(() => {
                 const params = new URLSearchParams(window.location.search);
                 return params.get('q') || '';
             });
@@ -617,9 +627,8 @@
             const[detailModalData, setDetailModalData] = useState(null);
 
             const[isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-            const [visibleCount, setVisibleCount] = useState(42); 
+            const[visibleCount, setVisibleCount] = useState(42); 
             const ITEMS_PER_PAGE = 42;
-            const isInitialMount = useRef(true);
 
             const handleSearch = (query) => {
                 setSearchQuery(query);
@@ -663,9 +672,6 @@
             },[activeMode, activeTopicCategory, activeFontCategory, searchQuery]);
 
             useEffect(() => {
-                if (isInitialMount.current) {
-                    isInitialMount.current = false;
-                }
                 setVisibleCount(ITEMS_PER_PAGE);
             },[activeMode, activeTopicCategory, activeFontCategory, searchQuery]);
 
