@@ -34,9 +34,19 @@
             -moz-osx-font-smoothing: grayscale;
         }
 
-        /* Scrollbar tweaks */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* 卡片动画优化 - 使用 will-change 预提示浏览器 */
+        .card-hover {
+            will-change: transform, box-shadow;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-4px);
+        }
     </style>
 
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
@@ -55,7 +65,6 @@
         const FONTS_DATA = window.FONTS_DATA || { CATEGORIES:[], ITEMS:[] };
         const TOPICS_DATA = window.TOPICS_DATA || { CATEGORIES:[], ITEMS:[] };
 
-        // ================= 重构图标库：支持精准传入 size 控制大小 =================
         const Icons = {
             Type: ({size=24, className="", ...p}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" x2="15" y1="20" y2="20"/><line x1="12" x2="12" y1="4" y2="20"/></svg>,
             Search: ({size=24, className="", ...p}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>,
@@ -340,9 +349,10 @@
             );
         };
 
+        // 修复：移除 transform-gpu 和 mask-image，改用 CSS 类控制动画
         const TopicCard = ({ item, onOpenDownload }) => {
             return (
-                <div className="group relative bg-white dark:bg-[#111] border border-gray-100 dark:border-white/5 rounded-2xl sm:rounded-3xl overflow-hidden transition-all duration-500 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] dark:hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)] hover:-translate-y-1 flex flex-col[mask-image:-webkit-radial-gradient(white,black)] transform-gpu">
+                <div className="card-hover group relative bg-white dark:bg-[#111] border border-gray-100 dark:border-white/5 rounded-2xl sm:rounded-3xl overflow-hidden transition-all duration-500 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] dark:hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)] flex flex-col">
                     <div className="relative w-full aspect-[16/10] bg-gray-100 dark:bg-[#1a1a1a] overflow-hidden shrink-0">
                         <img 
                             src={item.imageUrl} 
@@ -387,11 +397,12 @@
             );
         };
 
+        // 同样修复字体卡片
         const FontCard = ({ item, onOpenDetail, onOpenDownload }) => {
             return (
                 <div 
                     onClick={() => onOpenDetail(item)}
-                    className="group relative bg-white dark:bg-[#111] border border-gray-100 dark:border-white/5 rounded-2xl sm:rounded-3xl overflow-hidden transition-all duration-500 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] dark:hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)] hover:-translate-y-1[mask-image:-webkit-radial-gradient(white,black)] transform-gpu cursor-pointer flex flex-col"
+                    className="card-hover group relative bg-white dark:bg-[#111] border border-gray-100 dark:border-white/5 rounded-2xl sm:rounded-3xl overflow-hidden transition-all duration-500 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] dark:hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)] cursor-pointer flex flex-col"
                 >
                     <div className="relative w-full aspect-[4/3] bg-gray-100 dark:bg-[#1a1a1a] overflow-hidden shrink-0">
                         <img 
@@ -498,7 +509,6 @@
             return (
                 <div className="fixed inset-0 z-[60] bg-[#fafafa] dark:bg-[#0a0a0a] animate-in fade-in zoom-in-95 duration-300 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden">
                     
-                    {/* 全局悬浮返回按钮 */}
                     <div className="fixed top-4 right-4 md:top-6 md:right-8 z-[70]">
                         <button 
                             onClick={onClose} 
@@ -509,7 +519,6 @@
                         </button>
                     </div>
 
-                    {/* 左侧：配图画廊区域 */}
                     <div 
                         className="relative w-full lg:w-[45%] xl:w-[50%] lg:h-full shrink-0 flex items-center justify-center p-5 pt-16 lg:p-12 xl:p-16 bg-gray-100/60 dark:bg-[#0f0f0f] cursor-pointer"
                         onClick={onClose}
@@ -527,7 +536,6 @@
                         </div>
                     </div>
                     
-                    {/* 右侧：全屏背景滚动详情区 */}
                     <div 
                         className="relative flex-1 flex flex-col lg:h-full lg:overflow-y-auto no-scrollbar bg-[#fafafa] dark:bg-[#0a0a0a] cursor-pointer"
                         onClick={onClose}
@@ -538,7 +546,6 @@
                         >
                             <div className="hidden lg:block h-4"></div>
 
-                            {/* 头部标题 */}
                             <div>
                                 <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 dark:text-white mb-3 sm:mb-4 tracking-tight leading-[1.1]">{font.name}</h1>
                                 <div className="flex items-center gap-2 text-xs sm:text-sm md:text-base font-medium text-gray-500 dark:text-gray-400">
@@ -548,7 +555,6 @@
                                 </div>
                             </div>
                             
-                            {/* 标签 */}
                             <div className="flex flex-wrap gap-2 sm:gap-2.5">
                                 {font.tags && font.tags.map((tag, idx) => (
                                     <span key={idx} className="px-3.5 py-1.5 rounded-xl bg-gray-200/60 dark:bg-white/10 text-gray-700 dark:text-gray-200 text-[11px] sm:text-xs font-bold border border-gray-200/50 dark:border-white/5 shadow-sm">
@@ -557,12 +563,10 @@
                                 ))}
                             </div>
 
-                            {/* 简介说明 */}
                             <p className="text-gray-600 dark:text-gray-300 leading-relaxed text-[15px] sm:text-base md:text-lg">
                                 {font.description}
                             </p>
 
-                            {/* 数据小卡片区域 */}
                             <div className="grid grid-cols-2 gap-3 md:gap-4 mt-auto pt-6 sm:pt-8">
                                 <div className="p-3.5 sm:p-5 rounded-2xl bg-white dark:bg-[#111] border border-gray-200/60 dark:border-white/5 shadow-sm hover:shadow-md transition-shadow">
                                     <div className="text-gray-400 dark:text-gray-500 text-[10px] sm:text-[11px] font-bold mb-1.5 uppercase tracking-wider">授权类型</div>
@@ -582,7 +586,6 @@
                                 </div>
                             </div>
 
-                            {/* 主操作按钮区 */}
                             <div className="pt-4 sm:pt-6">
                                 <button 
                                     onClick={() => onOpenDownload(font)} 
